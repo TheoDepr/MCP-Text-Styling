@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  text-styling-mcp:
+    build: .
+    container_name: text-styling-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount styles directory to allow runtime updates
+      - ./styles:/app/styles:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import server; print('Health check passed')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Use HTTP transport for network access
+    command: python server.py --http
+    
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
